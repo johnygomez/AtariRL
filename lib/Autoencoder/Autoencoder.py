@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 ## Provides a default interface for Autoencoder class
 #
-class Agent:
+class Autoencoder:
   __metaclass__ = ABCMeta
   
   ## Training a autoencoder
