@@ -8,7 +8,7 @@ class Autoencoder:
   #
   # This method must be implemented
   @abstractmethod
-  def train(self, pretrained_weights): pass
+  def fit(self, data, n_epochs, val_split, batch_s): pass
 
   ## Encoding an input and providing numpy array of features
   #
