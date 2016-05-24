@@ -38,7 +38,7 @@ class NFQ:
       self.model = Model_from_json(open(model_path).read())
       self.model.load_weights(weights_path)
 
-    self.transitions = Queue(1000)
+    self.transitions = Queue(100)
 
   def train(self):
     np_data = np.array(list(this.transitions.queue))
@@ -59,12 +59,13 @@ class NFQ:
     out_data = list()
     for row in data:
       reward = row[-1]
+      selected_action = row[self.in_size]
       next_state = row[self.in_size+1:-1]
       predicted_Q = self.model.predict(next_state)
       maxQ = np.max(predicted_Q)
-      id_maxQ = np.argmax(predicted_Q)
+ #     id_maxQ = np.argmax(predicted_Q)
       out = np.zeros((self.out_size,))
-      out[id_maxQ] = reward + gamma*maxQ
+      out[selected_action] = reward + gamma*maxQ
       out_data.append(out)
 
     return np.array(out_data)

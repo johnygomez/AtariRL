@@ -6,6 +6,8 @@ from keras.models import Model
 
 class Encoder(Autoencoder):
 	def __init__(self, pre_trained_model = True, path_to_model = 'pre_trained_model/model.json', path_to_weights = 'pre_trained_model/NN_weights.h5', input_dim = 1600, encoding_dim = 25):		
+		self.input_dim = input_dim
+		self.out_dim = encoding_dim
 		self.use_pre_trained_model = pre_trained_model
 		if pre_trained_model:
 			self.autoencoder = Model_from_json(open(path_to_model).read())
