@@ -31,7 +31,7 @@ class Encoder(Autoencoder):
 		if use_pre_trained_model:
 			print 'Fit is not necessary!'
 			return
-		autoencoder.fit(data, data
+		autoencoder.fit(data, data,
                 nb_epoch=n_epochs,
                 batch_size=batch_s,
                 shuffle=True,

@@ -38,7 +38,7 @@ class NFQ:
       self.model = Model_from_json(open(model_path).read())
       self.model.load_weights(weights_path)
 
-    self.transitions = Queue(100)
+    self.transitions = Queue(1000)
 
   def train(self):
     np_data = np.array(list(this.transitions.queue))

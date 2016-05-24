@@ -72,8 +72,8 @@ class AleAgent:
         self.NFQ.add_transition(transition)
         
         total_reward += reward
-        moves++
-        if eps > 0.1
+        moves += 1
+        if eps > 0.1:
           eps -= (1/moves)
       #end while
       print 'Episode', episode, 'ended with score:', total_reward
@@ -93,6 +93,6 @@ class AleAgent:
       a = self.minimal_actions[x]
       reward = self.game.act(a)
       total_reward += reward
-      moves++
+      moves += 1
 
     print 'The game ended with score:', total_reward, ' after: ', moves, ' moves'
