@@ -1,6 +1,6 @@
 # Atari Reinforcement Learning
 
-Aim of this project is to implement simple learning mechanism for Atari 2600 games on ALE Platform ([Arcade Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment))
+Aim of this project is to implement simple learning mechanism for Atari 2600 games on ALE Platform ([Arcade Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment)). As a reinforcement learning technique we use **NFQ Learning** (see next).
 
 ### Main Principles of learning:
 * First of all, input image of a game is read by ALE interface (lib/ImgProc)
