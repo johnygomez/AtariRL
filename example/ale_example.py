@@ -5,16 +5,14 @@ import numpy as np
 import sys
 import os
 sys.path.append(os.path.abspath('../lib'))
+from ImgProc.PongProcessing import PongProcessing as proc
 from Autoencoder.Encoder import Encoder
+import matplotlib.pyplot as plt
 
-def squareLoop(I,J):
-  for i in (I, I+4):
-    for j in (J, J+4):
-      if(trimmed_data2[i,j] != 87):
-        pooling_data[I/4,J/4] = 1
-        return
 
-encoder = Encoder(pre_trained_model = True, path_to_model = 'encoder_model_200.json', path_to_weights = 'encoder_weights_200.h5')
+
+processor = proc()
+encoder = Encoder(path_to_model = 'encoder_model_75.json', path_to_weights = 'encoder_weights_75.h5')
 
 ale = ALEInterface()
 
@@ -31,7 +29,7 @@ if USE_SDL:
     pygame.init()
     ale.setBool('sound', False) # Sound doesn't work on OSX
   elif sys.platform.startswith('linux'):
-    ale.setBool('sound', True)
+    ale.setBool('sound', False)
   ale.setBool('display_screen', True)
 
 # Load the ROM file
@@ -47,21 +45,16 @@ pooling_data = np.zeros((40,40), dtype=np.uint8)
 
 
 # Play 10 episodes
-for episode in xrange(1):
+for episode in xrange(20):
   total_reward = 0
   i = 0
-  #while not ale.game_over():
-  for p in xrange(200):
+  while not ale.game_over():
     i = i + 1
     if i % 20 == 0:
       ale.getScreenGrayscale(screen_data)
-      trimmed_data = np.delete(screen_data, np.s_[195::], 0)
-      trimmed_data2 = np.delete(trimmed_data, np.s_[0:35], 0)
-      pooling_data = np.zeros((40,40), dtype=np.uint8)
-      for I in range(0,156,4):
-        for J in range(0,156,4):
-          squareLoop(I,J)
-      encoder.encode(np.array(pooling_data.reshape(1,1600)))
+      pooled_data = processor.process(screen_data)
+      encoded_data = encoder.draw(pooled_data)
+      
     a = legal_actions[randrange(len(legal_actions))]
     # Apply an action and get the resulting reward
     reward = ale.act(a);
