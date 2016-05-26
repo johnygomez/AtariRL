@@ -1,5 +1,5 @@
 from keras.layers import Input, Dense
-from keras.models import Model_from_json
+from keras.models import model_from_json
 from keras.models import Sequential
 from keras.callbacks import EarlyStopping
 from Queue import Queue
@@ -35,7 +35,7 @@ class NFQ:
         metrics=['accuracy'])
     else:
       assert weights_path is not None
-      self.model = Model_from_json(open(model_path).read())
+      self.model = model_from_json(open(model_path).read())
       self.model.load_weights(weights_path)
 
     self.transitions = Queue(1000)

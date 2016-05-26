@@ -1,12 +1,12 @@
 import sys
 from ale_python_interface import ALEInterface
-from Autoencoder import Encoder
+from Autoencoder.Encoder import Encoder
 from NFQ import NFQ
 import numpy as np
 
 class AleAgent:
   def __init__(self, processing_cls, game_rom = None, encoder_model = None, encoder_weights = None, NFQ_model = None, NFQ_weights = None):
-    assert game is not None  
+    assert game_rom is not None  
     self.game = ALEInterface()
     if encoder_weights is not None and encoder_model is not None:
       self.encoder = Encoder(path_to_model = encoder_model, path_to_weights = encoder_weights)

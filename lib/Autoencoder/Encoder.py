@@ -1,6 +1,6 @@
 from Autoencoder import Autoencoder
 from keras.layers import Input, Dense
-from keras.models import Model_from_json
+from keras.models import model_from_json
 from keras.models import Model
 
 
@@ -10,7 +10,7 @@ class Encoder(Autoencoder):
 		self.out_dim = encoding_dim
 		self.use_pre_trained_model = pre_trained_model
 		if pre_trained_model:
-			self.autoencoder = Model_from_json(open(path_to_model).read())
+			self.autoencoder = model_from_json(open(path_to_model).read())
 			self.autoencoder.load_weights(path_to_weights)
 		else:
 			input_img = Input(shape=(input_dim,))
