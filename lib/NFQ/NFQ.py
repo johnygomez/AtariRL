@@ -5,6 +5,7 @@ from keras.layers.core import Activation, Dense, Dropout
 from keras.callbacks import EarlyStopping
 from Queue import Queue
 import numpy as np
+import os
 
 class NFQ:
   
@@ -47,10 +48,11 @@ class NFQ:
     in_data = np.delete(np_data, np.s_[self.in_size::], 1)
     out_data = self.get_training_data(np_data)
     # stop_cb = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
-    self.model.fit(in_data, out_data,
+    hist = self.model.fit(in_data, out_data,
           nb_epoch=1000,
           batch_size=16,
           verbose = 0)
+    print 'Loss: ', hist.history['loss'][-1]
     # callbacks=[stop_cb]
 
   def predict_action(self, state):
@@ -63,11 +65,12 @@ class NFQ:
       reward = row[-1]
       selected_action = row[self.in_size]
       next_state = row[self.in_size+1:-1]
-      predicted_Q = self.model.predict(next_state.reshape((1,25)))
+      next_state = next_state.reshape(1,next_state.size)  
+      predicted_Q = self.model.predict(next_state)
       maxQ = np.max(predicted_Q)
  #     id_maxQ = np.argmax(predicted_Q)
       out = np.zeros((self.out_size,))
-      out[selected_action] = reward + self.gamma*maxQ
+      out[int(selected_action)] = reward + self.gamma*maxQ
       out_data.append(out)
 
     return np.array(out_data)
@@ -87,6 +90,12 @@ class NFQ:
 
     if weights_path is None:
       weights_path = 'weights.h5'
+
+      # remove old file if exists
+    try:
+      os.remove(weights_path)
+    except OSError:
+      pass
 
     try:
       self.model.save_weights(weights_path)

@@ -53,7 +53,8 @@ class AleAgent:
     for episode in xrange(num_of_episodes):
       total_reward = 0
       moves = 1
-      while not self.game.game_over() and moves < 10000:
+      print 'Starting episode: ', episode+1
+      while not self.game.game_over() and moves < 5000:
         self.game.getScreenGrayscale(self.screen_data)
         pooled_data = self.processor.process(self.screen_data)
         current_state = self.encoder.encode(pooled_data)
@@ -83,7 +84,7 @@ class AleAgent:
         if eps > 0.1:
           eps -= 0.0002
       #end while
-      print 'Episode', episode, 'ended with score:', total_reward
+      print 'Episode', episode+1, 'ended with score:', total_reward
       self.game.reset_game()
       self.NFQ.train()
       moves = 1
