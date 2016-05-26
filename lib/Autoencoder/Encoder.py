@@ -1,28 +1,34 @@
 from Autoencoder import Autoencoder
 from keras.layers import Input, Dense
-from keras.models import Model_from_json
+from keras.models import model_from_json
 from keras.models import Model
+from keras.utils.layer_utils import layer_from_config
 
 
 class Encoder(Autoencoder):
-	def __init__(self, pre_trained_model = True, path_to_model = 'pre_trained_model/model.json', path_to_weights = 'pre_trained_model/NN_weights.h5', input_dim = 1600, encoding_dim = 25):		
-		self.input_dim = input_dim
-		self.out_dim = encoding_dim
-		self.use_pre_trained_model = pre_trained_model
-		if pre_trained_model:
-			self.autoencoder = Model_from_json(open(path_to_model).read())
-			self.autoencoder.load_weights(path_to_weights)
-		else:
-			input_img = Input(shape=(input_dim,))
-			encoded = Dense(encoding_dim, activation='relu')(input_img)
-			decoded = Dense(imput_dim, activation='sigmoid')(encoded)
-			self.autoencoder = Model(input=input_img, output=decoded)
+	def __init__(self, pre_trained_model, path_to_model, path_to_weights):		
+		self.autoencoder = model_from_json(open(path_to_model).read())
+		self.autoencoder.load_weights(path_to_weights)
 		self.autoencoder.summary()
-		self.encoder = Model(input = self.autoencoder.layers[0], output = self.autoencoder.layers[1])
-		self.decoder = Model(input = self.autoencoder.layers[1], output = self.autoencoder.layers[2])
+		self.input_img = Input(shape=(1600,))
+		self.encoded = Dense(self.autoencoder.layers[1].output_dim, activation=self.autoencoder.layers[1].activation, weights = self.autoencoder.layers[1].get_weights())(self.input_img)
+
+
+		self.encoder = Model(input = self.input_img, output = self.encoded)
+		self.encoder.summary()
 
 	def encode(self, img):
-		return self.encoder.predict(img)
+		p = self.encoder.predict(img)
+		print p.shape
+		return p
+
+	def draw(self, img):
+		predicted_img = self.autoencoder.predict(img)
+		import matplotlib.pyplot as plt
+		plt.figure(figsize=(1,1), dpi=40)
+		plt.imshow(predicted_img.reshape(40, 40))
+		plt.show()
+
 
 	def decode(self, img):
 		return self.decoder.predict(img)
