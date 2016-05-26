@@ -16,7 +16,7 @@ class AleAgent:
     self.processor = processing_cls()
 
     # Get & Set the desired settings
-    self.game.setInt('random_seed', 777)
+    self.game.setInt('random_seed', 0)
 
     # Set USE_SDL to true to display the screen. ALE must be compilied
     # with SDL enabled for this to work. On OSX, pygame init is used to
@@ -81,7 +81,7 @@ class AleAgent:
         total_reward += reward
         moves += 1
         if eps > 0.1:
-          eps -= (1/(episode+1))
+          eps -= 0.0002
       #end while
       print 'Episode', episode, 'ended with score:', total_reward
       self.game.reset_game()
