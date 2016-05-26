@@ -6,7 +6,7 @@ class PongProcessing:
     self.pooling_data = np.zeros((40,40), dtype=np.uint8)
 
 
-  def squareLoop(self, I, J, trimmed_data):
+  def __squareLoop(self, I, J, trimmed_data):
     for i in (I, I+4):
       for j in (J, J+4):
         if(trimmed_data[i,j] != 87):
@@ -19,6 +19,6 @@ class PongProcessing:
     self.pooling_data = np.zeros((40,40), dtype=np.uint8)
     for I in range(0,156,4):
       for J in range(0,156,4):
-        squareLoop(I,J,trimmed_data)
+        self.__squareLoop(I,J,trimmed_data)
 
     return np.array(self.pooling_data.reshape(1,1600))

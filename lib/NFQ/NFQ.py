@@ -1,6 +1,7 @@
 from keras.layers import Input, Dense
 from keras.models import model_from_json
 from keras.models import Sequential
+from keras.layers.core import Activation, Dense, Dropout
 from keras.callbacks import EarlyStopping
 from Queue import Queue
 import numpy as np
@@ -19,7 +20,7 @@ class NFQ:
     self.out_size = out_size
     self.gamma = learning_rate
 
-    if model is None:
+    if model_path is None:
       self.model = Sequential()
       self.model.add(Dense(64, input_dim=in_size, init='uniform'))
       self.model.add(Activation('tanh'))
@@ -41,7 +42,7 @@ class NFQ:
     self.transitions = Queue(1000)
 
   def train(self):
-    np_data = np.array(list(this.transitions.queue))
+    np_data = np.array(list(self.transitions.queue))
     # trim the input data of neural net because it also contains unwanted state' and reward information => need it only for target Q
     in_data = np.delete(np_data, np.s_[self.in_size::], 1)
     out_data = self.get_training_data(np_data)

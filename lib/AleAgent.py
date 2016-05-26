@@ -1,7 +1,7 @@
 import sys
 from ale_python_interface import ALEInterface
 from Autoencoder.Encoder import Encoder
-from NFQ import NFQ
+from NFQ.NFQ import NFQ
 import numpy as np
 
 class AleAgent:
@@ -42,9 +42,9 @@ class AleAgent:
     self.minimal_actions = self.game.getMinimalActionSet()
 
     if NFQ_model is not None and NFQ_weights is not None:
-      self.NFQ = NFQ(self.encoder.out_dim, self.minimal_actions, model_path = NFQ_model, weights_path = NFQ_weights)
+      self.NFQ = NFQ(self.encoder.out_dim, len(self.minimal_actions), model_path = NFQ_model, weights_path = NFQ_weights)
     else:
-      self.NFQ = NFQ(self.encoder.out_dim, self.minimal_actions)
+      self.NFQ = NFQ(self.encoder.out_dim, len(self.minimal_actions))
 
     (self.screen_width,self.screen_height) = self.game.getScreenDims()
     self.screen_data = np.zeros((self.screen_height, self.screen_width), dtype=np.uint8)
@@ -70,7 +70,9 @@ class AleAgent:
         self.game.getScreenGrayscale(self.screen_data)
         pooled_data = self.processor.process(self.screen_data)
         next_state = self.encoder.encode(pooled_data)
-        transition = np.concatenate((current_state, np.array([x]), next_state, reward))
+        transition = np.append(current_state, x)
+        transition = np.append(transition, next_state)
+        transition = np.append(transition, reward)
         self.NFQ.add_transition(transition)
         
         total_reward += reward
