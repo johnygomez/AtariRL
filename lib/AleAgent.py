@@ -5,13 +5,15 @@ from NFQ import NFQ
 import numpy as np
 
 class AleAgent:
-  def __init__(self, game_rom = None, encoder_model = None, encoder_weights = None, NFQ_model = None, NFQ_weights = None):
+  def __init__(self, processing_cls, game_rom = None, encoder_model = None, encoder_weights = None, NFQ_model = None, NFQ_weights = None):
     assert game is not None  
     self.game = ALEInterface()
     if encoder_weights is not None and encoder_model is not None:
       self.encoder = Encoder(path_to_model = encoder_model, path_to_weights = encoder_weights)
     else:
       self.encoder = Encoder()
+
+    self.processor = processing_cls()
 
     # Get & Set the desired settings
     self.game.setInt('random_seed', 123)
@@ -45,7 +47,7 @@ class AleAgent:
       self.NFQ = NFQ(self.encoder.out_dim, self.minimal_actions)
 
     (self.screen_width,self.screen_height) = self.game.getScreenDims()
-    self.screen_data = np.zeros(self.screen_width * self.screen_height, dtype=np.uint32)
+    self.screen_data = np.zeros((self.screen_height, self.screen_width), dtype=np.uint8)
 
   def train(self, num_of_episodes = 100, eps = 1):
     for episode in xrange(num_of_episodes):
@@ -53,8 +55,8 @@ class AleAgent:
       moves = 1
       while not self.game.game_over() and moves < 100:
         self.game.getScreenGrayscale(self.screen_data)
-        # TODO processing a zakodovanie autoencoderom
-        current_state = self.encoder.encode(self.screen_data)
+        pooled_data = self.processor.process(self.screen_data)
+        current_state = self.encoder.encode(pooled_data)
 
         r = np.random.rand()
         if r < eps:
@@ -66,8 +68,8 @@ class AleAgent:
         # Apply an action and get the resulting reward
         reward = self.game.act(a)
         self.game.getScreenGrayscale(self.screen_data)
-        
-        next_state = self.encoder.encode(self.screen_data)
+        pooled_data = self.processor.process(self.screen_data)
+        next_state = self.encoder.encode(pooled_data)
         transition = np.concatenate((current_state, np.array([x]), next_state, reward))
         self.NFQ.add_transition(transition)
         
@@ -87,8 +89,9 @@ class AleAgent:
     moves = 1
     while not self.game.game_over():
       self.game.getScreenGrayscale(self.screen_data)
-      # TODO processing a zakodovanie autoencoderom
-      current_state = self.encoder.encode(self.screen_data)
+      pooled_data = self.processor.process(self.screen_data)
+      current_state = self.encoder.encode(pooled_data)
+      
       x = self.NFQ.predict_action(current_state)
       a = self.minimal_actions[x]
       reward = self.game.act(a)

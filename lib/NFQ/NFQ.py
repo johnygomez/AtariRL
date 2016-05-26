@@ -46,7 +46,7 @@ class NFQ:
     in_data = np.delete(np_data, np.s_[self.in_size::], 1)
     out_data = self.get_training_data(np_data)
     # stop_cb = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
-    model.fit(in_data, out_data,
+    self.model.fit(in_data, out_data,
           nb_epoch=100,
           batch_size=16)
     # callbacks=[stop_cb]
