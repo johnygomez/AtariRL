@@ -3,6 +3,7 @@ from keras.layers import Input, Dense
 from keras.models import model_from_json
 from keras.models import Model
 from keras.utils.layer_utils import layer_from_config
+import matplotlib.pyplot as plt
 
 
 class Encoder(Autoencoder):
@@ -18,15 +19,11 @@ class Encoder(Autoencoder):
 		self.in_dim = 1600
 
 	def encode(self, img):
-		p = self.encoder.predict(img)
-		return p
+		return self.encoder.predict(img)
 
 	def draw(self, img):
-		predicted_img = self.autoencoder.predict(img)
-		import matplotlib.pyplot as plt
-		plt.figure(figsize=(1,1), dpi=40)
-		plt.imshow(predicted_img.reshape(40, 40))
-		plt.show()
+		return self.autoencoder.predict(img)
+	
 
 
 	def decode(self, img):
