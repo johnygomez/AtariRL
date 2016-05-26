@@ -16,7 +16,7 @@ class AleAgent:
     self.processor = processing_cls()
 
     # Get & Set the desired settings
-    self.game.setInt('random_seed', 123)
+    self.game.setInt('random_seed', 777)
 
     # Set USE_SDL to true to display the screen. ALE must be compilied
     # with SDL enabled for this to work. On OSX, pygame init is used to
@@ -29,7 +29,7 @@ class AleAgent:
         pygame.init()
         self.game.setBool('sound', False) # Sound doesn't work on OSX
       elif sys.platform.startswith('linux'):
-        self.game.setBool('sound', True)
+        self.game.setBool('sound', False) # no sound
       self.game.setBool('display_screen', True)
 
     # Load the ROM file
@@ -53,7 +53,7 @@ class AleAgent:
     for episode in xrange(num_of_episodes):
       total_reward = 0
       moves = 1
-      while not self.game.game_over() and moves < 100:
+      while not self.game.game_over() and moves < 10000:
         self.game.getScreenGrayscale(self.screen_data)
         pooled_data = self.processor.process(self.screen_data)
         current_state = self.encoder.encode(pooled_data)
@@ -67,24 +67,28 @@ class AleAgent:
         a = self.minimal_actions[x]
         # Apply an action and get the resulting reward
         reward = self.game.act(a)
-        self.game.getScreenGrayscale(self.screen_data)
-        pooled_data = self.processor.process(self.screen_data)
-        next_state = self.encoder.encode(pooled_data)
-        transition = np.append(current_state, x)
-        transition = np.append(transition, next_state)
-        transition = np.append(transition, reward)
-        self.NFQ.add_transition(transition)
+
+        # record only every 3 frames
+        if not moves % 3:
+          self.game.getScreenGrayscale(self.screen_data)
+          pooled_data = self.processor.process(self.screen_data)
+          next_state = self.encoder.encode(pooled_data)
+          transition = np.append(current_state, x)
+          transition = np.append(transition, next_state)
+          transition = np.append(transition, reward)
+          self.NFQ.add_transition(transition)
         
         total_reward += reward
         moves += 1
         if eps > 0.1:
-          eps -= (1/moves)
+          eps -= (1/(episode+1))
       #end while
       print 'Episode', episode, 'ended with score:', total_reward
       self.game.reset_game()
       self.NFQ.train()
+      moves = 1
+      self.NFQ.save_net()
       #end for
-    self.NFQ.save_net()
 
   def play(self):
     total_reward = 0
