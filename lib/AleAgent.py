@@ -61,10 +61,19 @@ class AleAgent:
       else:
         eps -= 2/num_of_episodes
 
+      self.game.getScreenGrayscale(self.screen_data)
+      pooled_data = self.processor.process(self.screen_data)
+      next_state = self.encoder.encode(pooled_data)
       while not self.game.game_over() and moves < 2500:
-        self.game.getScreenGrayscale(self.screen_data)
-        pooled_data = self.processor.process(self.screen_data)
-        current_state = self.encoder.encode(pooled_data)
+        if not moves % 5:
+          reward = self.game.act(0)
+          total_reward += reward
+          if reward > 0:
+            hits += 1
+          moves += 1
+          continue
+
+        current_state = next_state
         x = None
 
         if key_binding:

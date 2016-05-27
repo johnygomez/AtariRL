@@ -27,18 +27,18 @@ class NFQ:
       self.model = Sequential()
       self.model.add(Dense(40, input_dim=in_size, init='uniform'))
       self.model.add(Activation('sigmoid'))
-      self.model.add(BatchNormalization())
-      self.model.add(Dense(10, init='uniform'))
+      # self.model.add(BatchNormalization())
+      self.model.add(Dense(20, init='uniform'))
       self.model.add(Activation('tanh'))
       self.model.add(Dropout(0.2))
       self.model.add(Dense(out_size, init='uniform'))
-      self.model.add(Activation('sigmoid'))
+      self.model.add(Activation('softmax'))
     else:
       assert weights_path is not None
       self.model = model_from_json(open(model_path).read())
       self.model.load_weights(weights_path)
 
-    self.model.compile(loss='binary_crossentropy', # maybe binary_crossentrpy?
+    self.model.compile(loss='mse', # maybe binary_crossentrpy?
         optimizer='rmsprop')
 
     self.transitions = Queue(7500)
@@ -50,7 +50,7 @@ class NFQ:
     out_data = self.get_training_data(np_data, intensive = intensive)
     # stop_cb = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
     hist = self.model.fit(in_data, out_data,
-          nb_epoch=1000,
+          nb_epoch=500,
           batch_size=128,
           verbose = 1)
     print 'Loss: ', hist.history['loss'][-1]
