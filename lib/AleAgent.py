@@ -3,6 +3,7 @@ from ale_python_interface import ALEInterface
 from Autoencoder.Encoder import Encoder
 from NFQ.NFQ import NFQ
 import numpy as np
+import pygame
 
 class AleAgent:
   def __init__(self, processing_cls, game_rom = None, encoder_model = None, encoder_weights = None, NFQ_model = None, NFQ_weights = None):
@@ -25,7 +26,6 @@ class AleAgent:
 
     if USE_SDL:
       if sys.platform == 'darwin':
-        import pygame
         pygame.init()
         self.game.setBool('sound', False) # Sound doesn't work on OSX
       elif sys.platform.startswith('linux'):
@@ -49,27 +49,37 @@ class AleAgent:
     (self.screen_width,self.screen_height) = self.game.getScreenDims()
     self.screen_data = np.zeros((self.screen_height, self.screen_width), dtype=np.uint8)
 
-  def train(self, num_of_episodes = 1500, eps = 0.999):
+  def train(self, num_of_episodes = 1500, eps = 0.999, key_binding=None):
     for episode in xrange(num_of_episodes):
       total_reward = 0
       moves = 1
       print 'Starting episode: ', episode+1
-      eps -= 2/num_of_episodes
-      while not self.game.game_over():
+      if key_binding:
+        eps = 0.4
+      else:
+        eps -= 2/num_of_episodes
+
+      while not self.game.game_over() and moves < 2500:
         self.game.getScreenGrayscale(self.screen_data)
         pooled_data = self.processor.process(self.screen_data)
         current_state = self.encoder.encode(pooled_data)
+        x = None
 
-        r = np.random.rand()
-        if r < eps:
-          x = np.random.randint(self.minimal_actions.size)
-        else:
-          x = self.NFQ.predict_action(current_state)
+        if key_binding:
+          key_pressed = pygame.key.get_pressed()
+          x = key_binding(key_pressed)
+        
+        if x is None:
+          r = np.random.rand()
+          if r < eps:
+            x = np.random.randint(self.minimal_actions.size)
+          else:
+            x = self.NFQ.predict_action(current_state)
 
         a = self.minimal_actions[x]
         # Apply an action and get the resulting reward
         reward = self.game.act(a)
-        
+
         # record only every 3 frames
         if not moves % 3:
           self.game.getScreenGrayscale(self.screen_data)
@@ -88,7 +98,7 @@ class AleAgent:
       print 'Epsilon: ', eps
       print 'Episode', episode+1, 'ended with score:', total_reward
       self.game.reset_game()
-      self.NFQ.train()
+      self.NFQ.train(intensive = key_binding is not None)
       moves = 1
       self.NFQ.save_net()
       #end for

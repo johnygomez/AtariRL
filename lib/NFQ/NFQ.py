@@ -27,30 +27,30 @@ class NFQ:
       self.model.add(Activation('tanh'))
       self.model.add(Dropout(0.2))
       self.model.add(Dense(64, init='uniform'))
-      self.model.add(Activation('tanh'))
+      self.model.add(Activation('sigmoid'))
       self.model.add(Dropout(0.2))
       self.model.add(Dense(out_size, init='uniform'))
-      self.model.add(Activation('softmax'))
-
-      self.model.compile(loss='mse', # maybe binary_crossentrpy?
-        optimizer='rmsprop',
-        metrics=['accuracy'])
+      self.model.add(Activation('sigmoid'))
     else:
       assert weights_path is not None
       self.model = model_from_json(open(model_path).read())
       self.model.load_weights(weights_path)
 
-    self.transitions = Queue(10000)
+    self.model.compile(loss='mse', # maybe binary_crossentrpy?
+        optimizer='rmsprop',
+        metrics=['accuracy'])
 
-  def train(self):
+    self.transitions = Queue(5000)
+
+  def train(self, intensive = False):
     np_data = np.array(list(self.transitions.queue))
     # trim the input data of neural net because it also contains unwanted state' and reward information => need it only for target Q
     in_data = np.delete(np_data, np.s_[self.in_size::], 1)
-    out_data = self.get_training_data(np_data)
+    out_data = self.get_training_data(np_data, intensive = intensive)
     # stop_cb = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
     hist = self.model.fit(in_data, out_data,
           nb_epoch=200,
-          batch_size=250,
+          batch_size=128,
           verbose = 0)
     print 'Loss: ', hist.history['loss'][-1]
     # callbacks=[stop_cb]
@@ -59,7 +59,7 @@ class NFQ:
     q = self.model.predict(state)
     return np.argmax(q)
 
-  def get_training_data(self, data):
+  def get_training_data(self, data, intensive = False):
     out_data = list()
     for row in data:
       reward = row[-1]
@@ -68,9 +68,13 @@ class NFQ:
       next_state = next_state.reshape(1,next_state.size)  
       predicted_Q = self.model.predict(next_state)
       maxQ = np.max(predicted_Q)
- #     id_maxQ = np.argmax(predicted_Q)
+      minQ = np.min(predicted_Q)
+
       out = np.zeros((self.out_size,))
       out[int(selected_action)] = reward + self.gamma*maxQ
+      for i in xrange(self.out_size):
+        if i != int(selected_action):
+          out[i] = minQ
       out_data.append(out)
 
     return np.array(out_data)

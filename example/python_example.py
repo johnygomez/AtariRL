@@ -1,7 +1,7 @@
 import sys
 from random import randrange
 from ale_python_interface import ALEInterface
-
+import pygame
 
 
 ale = ALEInterface()
@@ -15,7 +15,6 @@ ale.setInt('random_seed', 123)
 USE_SDL = True
 if USE_SDL:
   if sys.platform == 'darwin':
-    import pygame
     pygame.init()
     ale.setBool('sound', False) # Sound doesn't work on OSX
   elif sys.platform.startswith('linux'):
@@ -32,6 +31,11 @@ print legal_actions
 for episode in xrange(10):
   total_reward = 0
   while not ale.game_over():
+    if pygame.key.get_pressed()[pygame.K_RIGHT]:
+      print 'right'
+    elif pygame.key.get_pressed() == pygame.K_LEFT:
+      print 'left'
+
     a = legal_actions[randrange(len(legal_actions))]
     # Apply an action and get the resulting reward
     reward = ale.act(a);
