@@ -26,8 +26,8 @@ if USE_SDL:
 ale.loadROM('Pong.bin')
 
 # Get the list of legal actions
-legal_actions = ale.getLegalActionSet()
-
+legal_actions = ale.getMinimalActionSet()
+print legal_actions
 # Play 10 episodes
 for episode in xrange(10):
   total_reward = 0

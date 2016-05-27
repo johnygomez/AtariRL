@@ -49,12 +49,13 @@ class AleAgent:
     (self.screen_width,self.screen_height) = self.game.getScreenDims()
     self.screen_data = np.zeros((self.screen_height, self.screen_width), dtype=np.uint8)
 
-  def train(self, num_of_episodes = 100, eps = 1):
+  def train(self, num_of_episodes = 1500, eps = 0.999):
     for episode in xrange(num_of_episodes):
       total_reward = 0
       moves = 1
       print 'Starting episode: ', episode+1
-      while not self.game.game_over() and moves < 5000:
+      eps -= 2/num_of_episodes
+      while not self.game.game_over():
         self.game.getScreenGrayscale(self.screen_data)
         pooled_data = self.processor.process(self.screen_data)
         current_state = self.encoder.encode(pooled_data)
@@ -68,7 +69,7 @@ class AleAgent:
         a = self.minimal_actions[x]
         # Apply an action and get the resulting reward
         reward = self.game.act(a)
-
+        
         # record only every 3 frames
         if not moves % 3:
           self.game.getScreenGrayscale(self.screen_data)
@@ -81,9 +82,10 @@ class AleAgent:
         
         total_reward += reward
         moves += 1
-        if eps > 0.1:
-          eps -= 0.0002
+        if eps > 0.1 and moves % 40 == 0:
+          eps *= 0.995
       #end while
+      print 'Epsilon: ', eps
       print 'Episode', episode+1, 'ended with score:', total_reward
       self.game.reset_game()
       self.NFQ.train()

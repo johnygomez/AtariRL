@@ -49,8 +49,8 @@ class NFQ:
     out_data = self.get_training_data(np_data)
     # stop_cb = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
     hist = self.model.fit(in_data, out_data,
-          nb_epoch=1000,
-          batch_size=16,
+          nb_epoch=200,
+          batch_size=250,
           verbose = 0)
     print 'Loss: ', hist.history['loss'][-1]
     # callbacks=[stop_cb]
