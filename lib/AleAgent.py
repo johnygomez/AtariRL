@@ -22,6 +22,7 @@ class AleAgent:
     # Set USE_SDL to true to display the screen. ALE must be compilied
     # with SDL enabled for this to work. On OSX, pygame init is used to
     # proxy-call SDL_main.
+    # USE_SDL = False
     USE_SDL = True
 
     if USE_SDL:
@@ -53,6 +54,7 @@ class AleAgent:
     for episode in xrange(num_of_episodes):
       total_reward = 0
       moves = 1
+      hits = 0
       print 'Starting episode: ', episode+1
       if key_binding:
         eps = 0.4
@@ -81,25 +83,29 @@ class AleAgent:
         reward = self.game.act(a)
 
         # record only every 3 frames
-        if not moves % 3:
-          self.game.getScreenGrayscale(self.screen_data)
-          pooled_data = self.processor.process(self.screen_data)
-          next_state = self.encoder.encode(pooled_data)
-          transition = np.append(current_state, x)
-          transition = np.append(transition, next_state)
-          transition = np.append(transition, reward)
-          self.NFQ.add_transition(transition)
+        # if not moves % 3:
+        self.game.getScreenGrayscale(self.screen_data)
+        pooled_data = self.processor.process(self.screen_data)
+        next_state = self.encoder.encode(pooled_data)
+        transition = np.append(current_state, x)
+        transition = np.append(transition, next_state)
+        transition = np.append(transition, reward)
+        self.NFQ.add_transition(transition)
         
         total_reward += reward
+        if reward > 0:
+          hits += 1
         moves += 1
         if eps > 0.1 and moves % 40 == 0:
           eps *= 0.995
       #end while
       print 'Epsilon: ', eps
       print 'Episode', episode+1, 'ended with score:', total_reward
+      print 'Hits: ', hits
       self.game.reset_game()
       self.NFQ.train(intensive = key_binding is not None)
       moves = 1
+      hits = 0
       self.NFQ.save_net()
       #end for
 

@@ -2,6 +2,8 @@ from keras.layers import Input, Dense
 from keras.models import model_from_json
 from keras.models import Sequential
 from keras.layers.core import Activation, Dense, Dropout
+from keras.layers.normalization import BatchNormalization
+from keras.layers.advanced_activations import PReLU
 from keras.callbacks import EarlyStopping
 from Queue import Queue
 import numpy as np
@@ -23,11 +25,11 @@ class NFQ:
 
     if model_path is None:
       self.model = Sequential()
-      self.model.add(Dense(64, input_dim=in_size, init='uniform'))
-      self.model.add(Activation('tanh'))
-      self.model.add(Dropout(0.2))
-      self.model.add(Dense(64, init='uniform'))
+      self.model.add(Dense(40, input_dim=in_size, init='uniform'))
       self.model.add(Activation('sigmoid'))
+      self.model.add(BatchNormalization())
+      self.model.add(Dense(10, init='uniform'))
+      self.model.add(Activation('tanh'))
       self.model.add(Dropout(0.2))
       self.model.add(Dense(out_size, init='uniform'))
       self.model.add(Activation('sigmoid'))
@@ -36,11 +38,10 @@ class NFQ:
       self.model = model_from_json(open(model_path).read())
       self.model.load_weights(weights_path)
 
-    self.model.compile(loss='mse', # maybe binary_crossentrpy?
-        optimizer='rmsprop',
-        metrics=['accuracy'])
+    self.model.compile(loss='binary_crossentropy', # maybe binary_crossentrpy?
+        optimizer='rmsprop')
 
-    self.transitions = Queue(5000)
+    self.transitions = Queue(7500)
 
   def train(self, intensive = False):
     np_data = np.array(list(self.transitions.queue))
@@ -49,9 +50,9 @@ class NFQ:
     out_data = self.get_training_data(np_data, intensive = intensive)
     # stop_cb = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
     hist = self.model.fit(in_data, out_data,
-          nb_epoch=200,
+          nb_epoch=1000,
           batch_size=128,
-          verbose = 0)
+          verbose = 1)
     print 'Loss: ', hist.history['loss'][-1]
     # callbacks=[stop_cb]
 

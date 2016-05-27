@@ -17,6 +17,7 @@ def key_binding(key_pressed):
 
 
 if __name__ == "__main__":
-  agent = AleAgent(proc, game_rom = 'Pong.bin', encoder_model = 'encoder_model.json', encoder_weights = 'encoder_weights.h5', NFQ_model = 'nfq_model.json', NFQ_weights = 'nfq_weights.h5')
-  pygame.init()
+  # agent = AleAgent(proc, game_rom = 'Pong.bin', encoder_model = 'encoder_model.json', encoder_weights = 'encoder_weights.h5', NFQ_model = 'nfq_model.json', NFQ_weights = 'nfq_weights.h5')
+  agent = AleAgent(proc, game_rom = 'Pong.bin', encoder_model = 'encoder_model.json', encoder_weights = 'encoder_weights.h5')
   agent.train(key_binding = key_binding)
+  # agent.play()
