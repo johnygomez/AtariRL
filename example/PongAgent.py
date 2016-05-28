@@ -17,7 +17,10 @@ def key_binding(key_pressed):
 
 
 if __name__ == "__main__":
-  agent = AleAgent(proc, game_rom = 'Pong.bin', encoder_model = 'encoder_model.json', encoder_weights = 'encoder_weights.h5', NFQ_model = 'model.json', NFQ_weights = 'weights.h5')
-  # agent = AleAgent(proc, game_rom = 'Pong.bin', encoder_model = 'encoder_model.json', encoder_weights = 'encoder_weights.h5')
-  agent.train(key_binding = key_binding)
+  # agent = AleAgent(proc, game_rom = 'Pong.bin', encoder_model = 'encoder_model.json', encoder_weights = 'encoder_weights.h5', NFQ_model = 'model.json', NFQ_weights = 'weights.h5')
+  agent = AleAgent(proc, game_rom = 'Pong.bin', encoder_model = 'encoder_model.json', encoder_weights = 'encoder_weights.h5')
+  
+  # agent.train(key_binding = key_binding)
+  agent.train()
+  
   # agent.play()

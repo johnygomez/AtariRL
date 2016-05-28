@@ -25,11 +25,11 @@ class NFQ:
 
     if model_path is None:
       self.model = Sequential()
-      self.model.add(Dense(164, input_dim=in_size, init='lecun_uniform'))
+      self.model.add(Dense(64, input_dim=in_size, init='lecun_uniform'))
       self.model.add(Activation('relu'))
       # self.model.add(BatchNormalization())
       self.model.add(Dropout(0.2))
-      self.model.add(Dense(150, init='lecun_uniform'))
+      self.model.add(Dense(40, init='lecun_uniform'))
       self.model.add(Activation('relu'))
       self.model.add(Dropout(0.2))
       self.model.add(Dense(out_size, init='lecun_uniform'))
@@ -50,12 +50,13 @@ class NFQ:
     in_data = np.delete(np_data, np.s_[self.in_size::], 1)
     out_data = self.get_training_data(np_data, intensive = intensive)
     # stop_cb = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
+    print 'Learning...'
     hist = self.model.fit(in_data, out_data,
           nb_epoch=500,
-          batch_size=128,
-          verbose = 1,
-          validation_split=0.1)
-    print 'Loss: ', hist.history['loss'][-1]
+          batch_size=256,
+          verbose = 0,
+          validation_split=0.2)
+    print 'Loss: from ', hist.history['loss'][0], ' to ', hist.history['loss'][-1]
     # callbacks=[stop_cb]
 
   def predict_action(self, state):
@@ -64,7 +65,10 @@ class NFQ:
 
   def get_training_data(self, data, intensive = False):
     out_data = list()
-    for row in data:
+    flag_hit = False
+    flag_fail = False
+    ctr = 0
+    for row in reversed(data):
       reward = row[-1]
       selected_action = row[self.in_size]
       next_state = row[self.in_size+1:-1]
@@ -74,17 +78,29 @@ class NFQ:
       minQ = np.min(predicted_Q)
 
       out = np.zeros((self.out_size,))
-      if reward >= 1:
-        out[int(selected_action)] = reward
+      if reward >= 1 or flag_hit:
+        out[int(selected_action)] = 1 + self.gamma*maxQ
+        flag_fail = False
+        flag_hit = True
+      elif reward < 0 or flag_fail:
+        out[int(selected_action)] = -1 - self.gamma*minQ
+        flag_hit = False
+        flag_fail = True
       else:
         out[int(selected_action)] = reward + self.gamma*maxQ
       
+      if flag_hit or flag_fail:
+        ctr += 1
+        if ctr > 0:
+          flag_hit = False
+          flag_fail = False
+
       for i in xrange(self.out_size):
         if i != int(selected_action):
           out[i] = minQ
       out_data.append(out)
 
-    return np.array(out_data)
+    return np.array(reversed(out_data))
 
   # form [st, a, st+1, r]
   def add_transition(self, transition):

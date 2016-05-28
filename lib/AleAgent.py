@@ -18,6 +18,7 @@ class AleAgent:
 
     # Get & Set the desired settings
     self.game.setInt('random_seed', 0)
+    self.game.setInt('frame_skip', 3)
 
     # Set USE_SDL to true to display the screen. ALE must be compilied
     # with SDL enabled for this to work. On OSX, pygame init is used to
@@ -51,13 +52,14 @@ class AleAgent:
     self.screen_data = np.zeros((self.screen_height, self.screen_width), dtype=np.uint8)
 
   def train(self, num_of_episodes = 1500, eps = 0.999, key_binding=None):
+    pygame.init()
     for episode in xrange(num_of_episodes):
       total_reward = 0
       moves = 1
       hits = 0
       print 'Starting episode: ', episode+1
       if key_binding:
-        eps = 0.1
+        eps = 0.05
       else:
         eps -= 2/num_of_episodes
 
@@ -65,13 +67,13 @@ class AleAgent:
       pooled_data = self.processor.process(self.screen_data)
       next_state = self.encoder.encode(pooled_data)
       while not self.game.game_over() and moves < 2500:
-        if not moves % 5:
-          reward = self.game.act(0)
-          total_reward += reward
-          if reward > 0:
-            hits += 1
-          moves += 1
-          continue
+        # if not moves % 5:
+        #   reward = self.game.act(0)
+        #   total_reward += reward
+        #   if reward > 0:
+        #     hits += 1
+        #   moves += 1
+        #   continue
 
         current_state = next_state
         x = None
