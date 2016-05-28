@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 
 processor = proc()
-encoder = Encoder(path_to_model = 'encoder_model_75.json', path_to_weights = 'encoder_weights_75.h5')
+encoder = Encoder(path_to_model = 'encoder_v2_model.json', path_to_weights = 'encoder_v2_weights.h5')
 
 ale = ALEInterface()
 
@@ -41,7 +41,7 @@ legal_actions = ale.getLegalActionSet()
 (screen_width, screen_height) = ale.getScreenDims()
 #screen_data = np.zeros(screen_width*screen_height, dtype=np.uint32)
 screen_data = np.zeros((screen_height,screen_width), dtype=np.uint8)
-pooling_data = np.zeros((40,40), dtype=np.uint8)
+pooling_data = np.zeros((40,31), dtype=np.uint8)
 
 
 # Play 10 episodes
@@ -54,6 +54,10 @@ for episode in xrange(20):
       ale.getScreenGrayscale(screen_data)
       pooled_data = processor.process(screen_data)
       encoded_data = encoder.draw(pooled_data)
+      plt.figure(figsize=(1, 1), dpi=40)
+      plt.imshow(encoded_data.reshape(40, 31))
+      plt.show()
+
       
     a = legal_actions[randrange(len(legal_actions))]
     # Apply an action and get the resulting reward

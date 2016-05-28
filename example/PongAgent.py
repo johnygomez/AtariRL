@@ -22,5 +22,5 @@ if __name__ == "__main__":
   
   # agent.train(key_binding = key_binding)
   agent.train()
-  
+
   # agent.play()
