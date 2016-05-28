@@ -74,7 +74,11 @@ class NFQ:
       minQ = np.min(predicted_Q)
 
       out = np.zeros((self.out_size,))
-      out[int(selected_action)] = reward + self.gamma*maxQ
+      if reward >= 1:
+        out[int(selected_action)] = reward
+      else:
+        out[int(selected_action)] = reward + self.gamma*maxQ
+      
       for i in xrange(self.out_size):
         if i != int(selected_action):
           out[i] = minQ
