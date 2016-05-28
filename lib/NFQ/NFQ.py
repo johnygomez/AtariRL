@@ -25,14 +25,15 @@ class NFQ:
 
     if model_path is None:
       self.model = Sequential()
-      self.model.add(Dense(40, input_dim=in_size, init='uniform'))
-      self.model.add(Activation('sigmoid'))
+      self.model.add(Dense(164, input_dim=in_size, init='lecun_uniform'))
+      self.model.add(Activation('relu'))
       # self.model.add(BatchNormalization())
-      self.model.add(Dense(20, init='uniform'))
-      self.model.add(Activation('tanh'))
       self.model.add(Dropout(0.2))
-      self.model.add(Dense(out_size, init='uniform'))
-      self.model.add(Activation('softmax'))
+      self.model.add(Dense(150, init='lecun_uniform'))
+      self.model.add(Activation('relu'))
+      self.model.add(Dropout(0.2))
+      self.model.add(Dense(out_size, init='lecun_uniform'))
+      self.model.add(Activation('linear'))
     else:
       assert weights_path is not None
       self.model = model_from_json(open(model_path).read())
@@ -52,7 +53,8 @@ class NFQ:
     hist = self.model.fit(in_data, out_data,
           nb_epoch=500,
           batch_size=128,
-          verbose = 1)
+          verbose = 1,
+          validation_split=0.1)
     print 'Loss: ', hist.history['loss'][-1]
     # callbacks=[stop_cb]
 

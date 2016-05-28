@@ -57,7 +57,7 @@ class AleAgent:
       hits = 0
       print 'Starting episode: ', episode+1
       if key_binding:
-        eps = 0.4
+        eps = 0.1
       else:
         eps -= 2/num_of_episodes
 
