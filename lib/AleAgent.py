@@ -23,8 +23,8 @@ class AleAgent:
     # Set USE_SDL to true to display the screen. ALE must be compilied
     # with SDL enabled for this to work. On OSX, pygame init is used to
     # proxy-call SDL_main.
-    # USE_SDL = False
-    USE_SDL = True
+    USE_SDL = False
+    # USE_SDL = True
 
     if USE_SDL:
       if sys.platform == 'darwin':

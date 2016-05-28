@@ -91,7 +91,7 @@ class NFQ:
       
       if flag_hit or flag_fail:
         ctr += 1
-        if ctr > 0:
+        if ctr > 19:
           flag_hit = False
           flag_fail = False
 
@@ -100,7 +100,7 @@ class NFQ:
           out[i] = minQ
       out_data.append(out)
 
-    return np.array(reversed(out_data))
+    return np.array(out_data[::-1])
 
   # form [st, a, st+1, r]
   def add_transition(self, transition):
