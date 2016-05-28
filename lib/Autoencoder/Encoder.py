@@ -11,12 +11,12 @@ class Encoder(Autoencoder):
 		self.autoencoder = model_from_json(open(path_to_model).read())
 		self.autoencoder.load_weights(path_to_weights)
 		self.autoencoder.summary()
-		self.input_img = Input(shape=(1600,))
+		self.input_img = Input(shape=(1240,))
 		self.encoded = Dense(self.autoencoder.layers[1].output_dim, activation=self.autoencoder.layers[1].activation, weights = self.autoencoder.layers[1].get_weights())(self.input_img)
 		self.encoder = Model(input = self.input_img, output = self.encoded)
 		self.encoder.summary()
 		self.out_dim = self.encoder.layers[1].output_dim
-		self.in_dim = 1600
+		self.in_dim = 1240
 
 	def encode(self, img):
 		return self.encoder.predict(img)
